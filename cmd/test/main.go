@@ -129,6 +129,50 @@ func main() {
 			ExpectedCode: 200,
 			ExpectedBody: `{"A":"yellow","B":1,"C":false}` + "\n",
 		},
+		{
+			Method:       "POST",
+			Path:         "/switch",
+			Body:         `[]`,
+			ExpectedCode: 200,
+			ExpectedBody: `[]` + "\n",
+		},
+		{
+			Method:       "GET",
+			Path:         "/",
+			ExpectedCode: 200,
+			ExpectedBody: `{"A":"yellow","B":1,"C":true}` + "\n",
+		},
+		{
+			Method:       "POST",
+			Path:         "/dec",
+			Body:         `[]`,
+			ExpectedCode: 200,
+			ExpectedBody: `[]` + "\n",
+		},
+		{
+			Method:       "GET",
+			Path:         "/",
+			ExpectedCode: 200,
+			ExpectedBody: `{"A":"yellow","B":0,"C":true}` + "\n",
+		},
+		{
+			Method:       "POST",
+			Path:         "/switch",
+			Body:         `[]`,
+			ExpectedCode: 200,
+			ExpectedBody: `[]` + "\n",
+		},
+		{
+			Method:       "GET",
+			Path:         "/",
+			ExpectedCode: 200,
+			ExpectedBody: `{"A":"yellow","B":0,"C":false}` + "\n",
+		},
+
+		// TODO: Test custom ServeHTTP
+		// TODO: Test PATCH/PUT
+		// TODO: Test arrays
+		// TODO: Test maps
 	}
 	for i, t := range tests {
 		code, body := send(t.Method, "http://localhost:2999"+t.Path, t.Body)
