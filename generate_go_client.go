@@ -1,3 +1,6 @@
 package api
 
-func GenerateGoClient(t string) string
+func GenerateGoClient(t string) string {
+	panic("not implemented")
+	return ""
+}
