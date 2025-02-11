@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 
-	"github.com/mikerybka/util"
+	"github.com/mikerybka/api"
 )
 
 type Test struct {
@@ -18,8 +19,36 @@ type Test struct {
 	ExpectedBody string
 }
 
+type T struct {
+	A string
+	B int
+	C bool
+}
+
+func (t *T) SetA(s string) {
+	t.A = s
+}
+
+func (t *T) Inc() {
+	t.B += 1
+}
+
+func (t *T) Dec() {
+	t.B -= 1
+}
+
+func (t *T) Switch() {
+	t.C = !t.C
+}
+
 func main() {
-	backendURL := util.RequireEnvVar("BACKEND_URL")
+	go func() {
+		s := &api.Server{
+			Data: &T{},
+		}
+		panic(http.ListenAndServe(":2999", s))
+	}()
+
 	tests := []Test{
 		// Smoke test
 		{
@@ -28,6 +57,8 @@ func main() {
 			ExpectedCode: 200,
 			ExpectedBody: `{"A":"","B":0,"C":false}` + "\n",
 		},
+
+		// Test getting struct fields
 		{
 			Method:       "GET",
 			Path:         "/a",
@@ -79,9 +110,28 @@ func main() {
 			ExpectedCode: 200,
 			ExpectedBody: `[]` + "\n",
 		},
+		{
+			Method:       "GET",
+			Path:         "/",
+			ExpectedCode: 200,
+			ExpectedBody: `{"A":"yellow","B":0,"C":false}` + "\n",
+		},
+		{
+			Method:       "POST",
+			Path:         "/inc",
+			Body:         `[]`,
+			ExpectedCode: 200,
+			ExpectedBody: `[]` + "\n",
+		},
+		{
+			Method:       "GET",
+			Path:         "/",
+			ExpectedCode: 200,
+			ExpectedBody: `{"A":"yellow","B":1,"C":false}` + "\n",
+		},
 	}
 	for i, t := range tests {
-		code, body := send(t.Method, backendURL+t.Path, t.Body)
+		code, body := send(t.Method, "http://localhost:2999"+t.Path, t.Body)
 		if code != t.ExpectedCode {
 			fmt.Println("ERROR:", "test", i, "expected code", t.ExpectedCode, "got code", code)
 			fmt.Println("Body:", strings.TrimSpace(body))
@@ -92,6 +142,7 @@ func main() {
 			return
 		}
 	}
+	os.Exit(0)
 }
 
 func send(method, url, body string) (int, string) {
