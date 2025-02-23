@@ -23,6 +23,18 @@ type T struct {
 	A string
 	B int
 	C bool
+	D map[string]string
+	E map[string]bool
+	F map[string]int
+	G map[string]S
+	H *S
+	I []string
+	J []S
+	K []int
+}
+
+type S struct {
+	A int
 }
 
 func (t *T) SetA(s string) {
